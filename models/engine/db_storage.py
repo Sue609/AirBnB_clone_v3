@@ -83,6 +83,7 @@ class DBStorage:
         object_dict = self.all(cls)
         if object_dict and id in object_dict:
             return object_dict[id]
+        return None
 
     def count(self, cls=None):
         """
