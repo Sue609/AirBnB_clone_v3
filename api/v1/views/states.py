@@ -4,7 +4,7 @@ Create a new view for State objects
 that handles all default RESTFul API actions.
 """
 
-from flask import jsonify, abort
+from flask import jsonify, abort, request
 from models import storage
 from api.v1.views import app_views
 from models.state import State
@@ -20,7 +20,8 @@ def retrieve_list_of_states():
     return jsonify(state_list)
 
 
-@app_views.route('/states/<string:state_id>', methods=['GET'], strict_slashes=False)
+@app_views.route('/states/<string:state_id>', methods=['GET'],
+                 strict_slashes=False)
 def retrieve_a_state(state_id):
     """
     Retrieves a State object: GET /api/v1/states/<state_id>
@@ -31,18 +32,19 @@ def retrieve_a_state(state_id):
     return jsonify(state.to_dict())
 
 
-@app_views.route('states/<state_id>', methods=['DELETE'], strict_slashes=False)
+@app_views.route('states/<string:state_id>', methods=['DELETE'],
+                 strict_slashes=False)
 def delete_state(state_id):
     """
     Deletes a State object:: DELETE /api/v1/states/<state_id>.
     """
-    state = State.query.get(state_id)
+    state = storage.get(State, state_id)
     if state is None:
         abort(404)
-    else:
-        state.delete()
-        storage.save()
-        return jsonify({}), 200
+
+    state.delete()
+    storage.save()
+    return jsonify({})
 
 
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
@@ -65,18 +67,13 @@ def put_object_state(state_id):
     """
     Updates a State object: PUT /api/v1/states/<state_id>
     """
-    if state_id is not storage.all(State):
-        abort(404)
-    put_state = storage.get("State", state_id)
     if not request.get_json():
-        abort(400, message="Not a JSON")
-    data = request.get_json()
-
-    for key in ["id", "created_at", "updated_at"]:
-        data.pop(key, None)
-
-    for key, value in data.items():
-        setattr(put_state, key, value)
-    put_state.save()
-
-    return jsonify(put_state.to_dict()), 200
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+    obj = storage.get(State, state_id)
+    if obj is None:
+        abort(404)
+    for key, value in request.get_json().items():
+        if key not in ['id', 'created_at', 'updated']:
+            setattr(obj, key, value)
+    storage.save()
+    return jsonify(obj.to_dict())
