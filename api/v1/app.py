@@ -3,7 +3,7 @@
 This module introuduces a function
 """
 
-from flask import Flask
+from flask import Flask, jsonify
 from models import storage
 from api.v1.views import app_views
 import os
@@ -17,6 +17,17 @@ app.register_blueprint(app_views)
 def close_db(exception):
     """ calls method close()"""
     storage.close()
+
+
+@app.errorhandler(404)
+def error_handler(error):
+    """
+    Custom error handler for 404 errors.
+    returns a JSON-formatted 404 status code.
+    """
+    response = jsonify({"error": "Not found"})
+    response.status_code = 404
+    return response
 
 
 if __name__ == "__main__":
