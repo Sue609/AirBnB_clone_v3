@@ -95,13 +95,7 @@ class DBStorage:
         """
         A method to count the number of objects in storage.
         """
-        obj_dict = {}
-        obj_count = 0
-        if cls:
-            object_dict = self.all(cls)
-            obj_count = len(obj_dict)
-        else:
-            for clss in classes.values():
-                obj_dict = self.all(clss)
-                obj_count += len(obj_dict)
-        return obj_count
+        data = self.all(cls)
+        if cls in classes.values():
+            data = self.all(cls)
+        return len(data)
