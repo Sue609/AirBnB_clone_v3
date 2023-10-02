@@ -69,7 +69,7 @@ def post_object_review(place_id):
 
     if "text" not in request.get_json():
         return make_response(jsonify({"error": "Missing text"}), 400)
-    
+
     json_object = request.get_json()
     json_object['place_id'] = place_id
 
@@ -96,7 +96,8 @@ def put_object_review(review_id):
     if obj is None:
         abort(404)
     for key, value in request.get_json().items():
-        if key not in ['id', 'user_id', 'place_id', 'email', 'created_at', 'updated_at']:
+        if key not in ['id', 'user_id', 'place_id', 'email', 'created_at',
+                       'updated_at']:
             setattr(review, key, value)
     storage.save()
     return jsonify(review.to_dict())
