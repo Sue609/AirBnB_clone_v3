@@ -93,7 +93,7 @@ def put_object_review(review_id):
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
 
-    if obj is None:
+    if review is None:
         abort(404)
     for key, value in request.get_json().items():
         if key not in ['id', 'user_id', 'place_id', 'email', 'created_at',
