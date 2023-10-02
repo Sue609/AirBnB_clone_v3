@@ -18,10 +18,10 @@ def retrieve_list_of_reviews(place_id):
     """
     Retrieves the list of all Review objects of a Place
     """
-    place = storage.all(Place, place_id)
+    place = storage.get(Place, place_id)
     if place is None:
         abort(404)
-    user_review = [review.to_dict() for review in place.reviews]
+    review_list = [review.to_dict() for review in place.reviews]
     return jsonify(review_list)
 
 
@@ -31,7 +31,7 @@ def retrieve_a_review(review_id):
     """
     Retrieves a Review object.
     """
-    review = storage.get(Review, Review_id)
+    review = storage.get(Review, review_id)
     if review is None:
         abort(404)
     return jsonify(review.to_dict())
@@ -78,7 +78,7 @@ def post_object_review(place_id):
         abort(404)
     new_review = Review(**json_object)
     new_review.save()
-    return jsonify(new_user.to_dict()), 201
+    return jsonify(new_review.to_dict()), 201
 
 
 @app_views.route('/reviews/<string:review_id>', methods=['PUT'],
@@ -97,6 +97,6 @@ def put_object_review(review_id):
         abort(404)
     for key, value in request.get_json().items():
         if key not in ['id', 'user_id', 'place_id', 'email', 'created_at', 'updated_at']:
-            setattr(obj, key, value)
+            setattr(review, key, value)
     storage.save()
-    return jsonify(obj.to_dict())
+    return jsonify(review.to_dict())
